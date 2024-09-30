@@ -63,3 +63,5 @@ jobs:
         app-name: 'telegraphClient' 
         images: 'telegraphcontainers.azurecr.io/php-backend:latest'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
+# A FAIRE : CREER UN SERVICE PRINCIPALE PERMETTANT A L'AUTOMATISATION DE NE PAS AVOIR DE PROBLEME DE DROITS
