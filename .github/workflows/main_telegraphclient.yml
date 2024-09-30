@@ -1,62 +1,51 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy Node.js app to Azure Web App - telegraphClient
+name: Deploy Full Stack App with PHP Backend on Docker to Azure Web App
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js version
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
 
-      - name: npm install, build, and test
-        run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+    # Installer les dépendances du frontend
+    - name: Install frontend dependencies
+      run: npm install
+      working-directory: ./client  # Si ton frontend est dans un sous-dossier
 
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+    # Construire le frontend
+    - name: Build frontend
+      run: npm run build
+      working-directory: ./client  # Si ton frontend est dans un sous-dossier
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-app
-          path: release.zip
+    # Construire le conteneur Docker pour le backend PHP
+    - name: Build PHP Backend Docker Image
+      run: docker-compose -f ./serveur_php/docker-compose.yml build
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: node-app
+    # Pousser l'image Docker sur le registre Azure Container Registry (ACR)
+    - name: Login to Azure Container Registry (ACR)
+      uses: azure/docker-login@v1
+      with:
+        login-server: telegraphcontainers.azurecr.io  # Remplace par le nom de ton ACR
+        username: ${{ secrets.AZURE_ACR_USERNAME }}
+        password: ${{ secrets.AZURE_ACR_PASSWORD }}
 
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
-      
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'telegraphClient'
-          slot-name: 'Production'
-          package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_03C0F0B241EC43548F9CCF34C143B990 }}
+    - name: Push Docker image to ACR
+      run: docker-compose -f ./serveur_php/docker-compose.yml push
+
+    # Déployer sur Azure Web App à partir de l'image Docker dans ACR
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'NomDeTonAppAzure'  # Le nom de ta Web App sur Azure
+        images: 'telegraphcontainers.azurecr.io/php-backend:latest'  # Remplace par le nom de l'image et le tag
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
