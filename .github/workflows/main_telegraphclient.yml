@@ -12,11 +12,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    # Installer Docker
+    - name: Set up Docker
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker.io
+        sudo systemctl start docker
+        sudo systemctl enable docker
+
+    # Installer Docker Compose
+    - name: Install Docker Compose
+      run: |
+        sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+
     # Copier les fichiers frontend
     - name: Copy frontend files
       run: |
         mkdir -p ./frontend-deploy
-        cp -r ./client/* ./frontend-deploy/  
+        cp -r ./client/* ./frontend-deploy/  # Changez './frontend/' en le chemin réel de votre frontend
 
     # Construire le conteneur Docker pour le backend PHP
     - name: Build PHP Backend Docker Image
