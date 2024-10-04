@@ -38,7 +38,7 @@ jobs:
     - name: Copy frontend files
       run: |
         mkdir -p ./frontend-deploy
-        cp -r ./client/* ./frontend-deploy/  # Changez './frontend/' en le chemin réel de votre frontend
+        cp -r ./client/* ./frontend-deploy/
 
     # Construire le conteneur Docker pour le backend PHP
     - name: Build PHP Backend Docker Image
