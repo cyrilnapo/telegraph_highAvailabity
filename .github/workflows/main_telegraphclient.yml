@@ -53,8 +53,8 @@ jobs:
         password: ${{ secrets.AZURE_ACR_PASSWORD }}
 
     # Push Docker image to ACR
-    #- name: Push Docker image to ACR
-    #  run: docker-compose -f ./serveur_php/docker-compose.yml push
+    - name: Push Docker image to ACR
+      run: docker-compose -f ./serveur_php/docker-compose.yml push
 
     # Deploy to Azure Web App
     - name: Deploy to Azure Web App
