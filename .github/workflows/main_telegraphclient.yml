@@ -42,10 +42,7 @@ jobs:
 
     # Construire le conteneur Docker pour le backend PHP
     - name: Build PHP Backend Docker Image
-      run: |
-        docker-compose -f ./serveur_php/docker-compose.yml build
-        docker tag fb0a15ae379f telegraphcontainers.azurecr.io/php_software_telegraph_php:latest
-
+      run: docker-compose -f ./serveur_php/docker-compose.yml build
 
     # Login to Azure Container Registry (ACR)
     - name: Login to Azure Container Registry (ACR)
