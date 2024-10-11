@@ -42,7 +42,10 @@ jobs:
 
     # Construire le conteneur Docker pour le backend PHP
     - name: Build PHP Backend Docker Image
-      run: docker-compose -f ./serveur_php/docker-compose.yml build
+      run: |
+        docker-compose -f ./serveur_php/docker-compose.yml build
+        docker tag <IMAGE_ID> telegraphcontainers.azurecr.io/php_software_telegraph_php:latest
+
 
     # Login to Azure Container Registry (ACR)
     - name: Login to Azure Container Registry (ACR)
@@ -61,5 +64,5 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'telegraphClient' 
-        images: 'telegraphcontainers.azurecr.io/php-backend:latest'
+        images: 'telegraphcontainers.azurecr.io/php_software_telegraph_php:latest'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
